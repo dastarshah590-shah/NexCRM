@@ -16,9 +16,29 @@ import { errorMiddleware, notFoundMiddleware } from "./middleware/errorMiddlewar
 export const app = express();
 
 app.use(helmet());
+
+const localPreviewOrigins = [/^http:\/\/localhost:\d+$/, /^http:\/\/127\.0\.0\.1:\d+$/];
+const vercelPreviewOrigin = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+const configuredOrigins = env.clientUrl
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin(origin, callback) {
+      if (
+        !origin ||
+        configuredOrigins.includes(origin) ||
+        localPreviewOrigins.some((pattern) => pattern.test(origin)) ||
+        vercelPreviewOrigin.test(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
   })
 );
