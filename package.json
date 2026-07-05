@@ -2,6 +2,7 @@
   "name": "nexcrm",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "NexCRM SaaS CRM platform",
   "workspaces": [
     "backend",
